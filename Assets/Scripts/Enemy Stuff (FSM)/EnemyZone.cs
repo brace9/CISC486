@@ -15,18 +15,19 @@ public class EnemyZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // checking for body and not player is probably bad practice but whatever lmao
-        if (other.gameObject.name == "Body")
+        if (!enemy.targetPlayer && other.gameObject.tag == "PlayerBody")
         {
-            Debug.Log("Entered zone, state change to target should happen");
+            enemy.targetPlayer = other.gameObject; // Player body
+            enemy.ChangeState(EnemyState.TARGET);
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.name == "Body")
+        if (other.gameObject == enemy.targetPlayer)
         {
-            Debug.Log("Exited zone, state change back to idle should happen");
+            enemy.targetPlayer = null;
+            enemy.ChangeState(EnemyState.IDLE);
         }
     }
 

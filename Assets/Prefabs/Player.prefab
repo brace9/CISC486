@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 3959575010005078540}
   - component: {fileID: 1482272563947018731}
   - component: {fileID: 1000152139150831376}
+  - component: {fileID: 1352729019678576378}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -115,8 +116,23 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1
+  raycastOffset: 0.2
   jumpKey: 32
   orientation: {fileID: 1939276383650159610}
+--- !u!114 &1352729019678576378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5696753548315481604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 762e113b1d0ead24eaf953af53052790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemKey: 122
+  item: {fileID: 0}
 --- !u!1 &5825631606976842514
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,7 +148,7 @@ GameObject:
   - component: {fileID: 3042433269530439391}
   m_Layer: 0
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: PlayerBody
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

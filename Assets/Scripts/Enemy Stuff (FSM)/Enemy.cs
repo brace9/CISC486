@@ -1,83 +1,163 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
+public enum EnemyState
+{
+    IDLE,       // Wander aimlessly around zone
+    TARGET,     // Pathfind towards player
+    ATTACK      // Use held item on player
+}
 
 public class Enemy : MonoBehaviour
 {
     public EnemyZone zone;
+    public BaseItem item;
 
     [Header("Idle")]
     public Vector2 changeDestinationEvery = new Vector2(4, 9);
 
-    State currentState;
-    NavMeshAgent navmesh;
-    GameObject player;
-    float nextPositionChange;
+    // [Header("Target")]
+    [HideInInspector] public GameObject targetPlayer;
 
-    // i have no clue how the state machine is supposed to work so i'm doing this for now
-    public string testState = "target";
+    EnemyState currentState = EnemyState.IDLE;
+
+    NavMeshAgent navmesh;
+    Rigidbody rb;
+    MeshRenderer rend;
+
+    float nextPositionChange;
+    float nextItemUse;
+
+    [Header("Debug")]
+    public Material material_idle;
+    public Material material_target;
+    public Material material_attack;
 
     void Awake()
     {
+        rend = GetComponent<MeshRenderer>();
+        rb = GetComponent<Rigidbody>();
         navmesh = GetComponent<NavMeshAgent>();
-        zone.enemy = this;
-        player = GameObject.FindWithTag("Player");
-    }
+        if (zone) zone.enemy = this;
 
+        ChangeState(currentState);
+    }
+    
     // Update is called once per frame
     void Update()
     {
-        RunStateMachine();
 
-        // if (currentState is IdleState)
-        if (testState == "idle")
+        if (currentState is EnemyState.IDLE)
+            RunIdleState();
+
+        else if (currentState is EnemyState.TARGET)
+            RunTargetState();
+
+        else if (currentState is EnemyState.ATTACK)
+            RunAttackState();
+    }
+
+    public void ChangeState(EnemyState state)
+    {
+        currentState = state;
+
+        if (state == EnemyState.IDLE)
         {
-            // Pick new position and navigate there
-            if (Time.time > nextPositionChange)
+            navmesh.ResetPath();
+            if (material_idle != null) rend.material = material_idle;
+        }
+
+        else if (state == EnemyState.TARGET)
+        {
+            ScheduleNextItemUse();
+            if (material_target != null) rend.material = material_target;
+        }
+
+        else if (state == EnemyState.ATTACK)
+        {
+            if (material_attack != null) rend.material = material_attack;
+        }
+    }
+
+    // Navmesh requires RB to be disabled, so toggle it for physics effects
+    public void ToggleRigidbody(bool enabled)
+    {
+        navmesh.enabled = !enabled;
+        rb.isKinematic = !enabled;
+    }
+
+    // Temporarily switch to rigidbody then back to navmesh
+    public IEnumerator SwitchToRigidbody(float time)
+    {
+        ToggleRigidbody(true);
+        yield return new WaitForSeconds(time);
+        ToggleRigidbody(false);
+    }
+
+    public void PathfindTo(Vector3 targetPos)
+    {
+        if (navmesh.enabled)
+            navmesh.SetDestination(targetPos);
+    }
+
+    // == STATES //
+
+    // Idle state
+    void RunIdleState()
+    {
+        if (zone != null && Time.time > nextPositionChange)
+        {
+            ScheduleNextIdleMovement();
+
+            var targetPos = zone.GetRandomPoint();
+            // print($"Picked random point: {targetPos}");
+
+            // Check if position is walkable
+            if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 64, NavMesh.AllAreas))
             {
-                ScheduleNextIdleMovement();
-
-                var targetPos = zone.GetRandomPoint();
-                print($"Picked random point: {targetPos}");
-
-                // Check if position is walkable
-                if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 64, NavMesh.AllAreas))
-                {
-                    print("Heading to destination!");
-                    navmesh.SetDestination(targetPos);
-                }
+                // print("Heading to destination!");
+                PathfindTo(targetPos);
             }
         }
+    }
 
-        if (testState == "target")
+    // Target state
+    void RunTargetState()
+    {
+        if (!targetPlayer) return;
+
+        // Target player directly
+        PathfindTo(targetPlayer.transform.position);
+
+        // If holding an item, use it sometimes
+        if (item != null && Time.time > nextItemUse)
         {
-            navmesh.SetDestination(player.transform.position);
+            ScheduleNextItemUse();
+            item.Use();
         }
     }
 
-    private void RunStateMachine()
+    // Attack state
+    void RunAttackState()
     {
-        State nextState = currentState?.RunCurrentState();
 
-        if (nextState != null)
-        {
-            //switch to next state
-            SwitchToNextState(nextState);
-        }
     }
 
-    private void SwitchToNextState(State nextState)
-    {
-        currentState = nextState;
 
-        if (currentState is IdleState)
-            ScheduleNextIdleMovement();
-    }
-
-    // schedule the next time the enemy will aimlessly wander
+    // Schedule the next time the enemy will aimlessly wander
     void ScheduleNextIdleMovement()
     {
         nextPositionChange = Time.time + Random.Range(changeDestinationEvery.x, changeDestinationEvery.y);
+    }
+    
+    // Schedule the next time the enemy will use their item
+    void ScheduleNextItemUse()
+    {
+        if (item != null)
+        {
+            nextItemUse = Time.time + Random.Range(item.enemyUseInterval.x, item.enemyUseInterval.y);
+            print($"Will use item in {nextItemUse - Time.time} secs");
+        }
     }
 }
