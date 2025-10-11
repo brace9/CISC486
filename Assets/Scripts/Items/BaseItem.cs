@@ -9,7 +9,7 @@ public class BaseItem : MonoBehaviour
     public GameObject holder;
     public Enemy enemy; // if enemy is holding
 
-    public Vector2 enemyUseInterval = new Vector2(3, 6); // how often the enemy uses when targeting, todo make certain items override
+    public Vector2 enemyUseInterval = new Vector2(0, 3); // how often the enemy uses when targeting, todo make certain items override
 
     float disabledUntil = -1;
 

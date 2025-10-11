@@ -64,7 +64,18 @@ public class Enemy : MonoBehaviour
 
         if (state == EnemyState.IDLE)
         {
-            navmesh.ResetPath();
+
+            // if the player walks out of the enemy zone while in the middle of the jump, it will become idle, and want to reset its path, 
+            // but if it's mid-air, resetting the path will cause issues.
+             if (navmesh != null && IsGrounded())
+            {
+                navmesh.ResetPath();
+            }
+            else
+            {
+                Debug.Log("Enemy.ChangeState: skipping ResetPath because enemy is not grounded.");
+            }
+
             if (material_idle != null) rend.material = material_idle;
         }
 
@@ -92,12 +103,17 @@ public class Enemy : MonoBehaviour
     {
         ToggleRigidbody(true);
         yield return new WaitForSeconds(time);
+        yield return new WaitUntil(() => IsGrounded());
+        if (rb != null)
+            rb.isKinematic = true;
+            
+
         ToggleRigidbody(false);
     }
 
     public void PathfindTo(Vector3 targetPos)
     {
-        if (navmesh.enabled)
+        if (navmesh != null && navmesh.enabled && navmesh.isOnNavMesh)
             navmesh.SetDestination(targetPos);
     }
 
@@ -150,7 +166,7 @@ public class Enemy : MonoBehaviour
     {
         nextPositionChange = Time.time + Random.Range(changeDestinationEvery.x, changeDestinationEvery.y);
     }
-    
+
     // Schedule the next time the enemy will use their item
     void ScheduleNextItemUse()
     {
@@ -159,5 +175,10 @@ public class Enemy : MonoBehaviour
             nextItemUse = Time.time + Random.Range(item.enemyUseInterval.x, item.enemyUseInterval.y);
             print($"Will use item in {nextItemUse - Time.time} secs");
         }
+    }
+    
+    bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position, Vector3.down, 1.1f);
     }
 }
