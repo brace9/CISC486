@@ -34,9 +34,8 @@ Our enemies will spawn in designated spots where items can be collected. They wi
 
 **AI FSM:**
 
-* Idle  
-* Attack (use held item to attack nearby player)  
-* Launch (use specific movement-based items to launch towards player)  
+* Idle  (Wait for a player to walk into its path)
+* Launch/Attack (use specific items to launch towards/attack player, etc)  
 * Target (target and pathfind towards nearby player)
 
 ## **Scripted Events**  
@@ -49,3 +48,4 @@ The game will take place in a fairly open grassy arena with various platforms, o
 Most sounds, models, and other assets will likely be taken from free packs on the Unity Asset Store, itch.io, and more.
 
 Various free websites and tools may also be of use, such as paint.net for graphics, Audacity for audio editing, and Mixamo for 3D animations.
+
