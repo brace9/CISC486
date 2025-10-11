@@ -10,8 +10,8 @@ public class AttackState : State
     public float dashMultiplier = 3f;
     public float dashDuration = 0.4f;
     public float jumpHeight = 0.4f;
-    public float preAttackDistance = 2f;
-    public float dashDistance = 5f;
+    public float preAttackDistance = 6f;
+    public float dashDistance = 10f;
     public float moveToAttackSpeed = 3f;
     public float postDashCooldown = 0.3f; // small pause after dash
 
