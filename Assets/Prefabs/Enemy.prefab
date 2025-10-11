@@ -133,6 +133,9 @@ GameObject:
   - component: {fileID: 5888265134965298289}
   - component: {fileID: 6769330201477267052}
   - component: {fileID: 8376912348437329490}
+  - component: {fileID: 1773463552915180725}
+  - component: {fileID: 4318875315386049484}
+  - component: {fileID: 5137365569788052842}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -243,6 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zone: {fileID: 2510683303954051940}
   changeDestinationEvery: {x: 4, y: 9}
+  testState: target
 --- !u!195 &8376912348437329490
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -265,3 +269,43 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1773463552915180725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6019075546496734761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056efb2472e96794bb4d98b5221e37cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetState: {fileID: 4318875315386049484}
+--- !u!114 &4318875315386049484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6019075546496734761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acd985f1b62c74a46992238bb17ce56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackState: {fileID: 5137365569788052842}
+  idleState: {fileID: 1773463552915180725}
+--- !u!114 &5137365569788052842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6019075546496734761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 268dcca6289d74c42b6b3c3f1ffe8fe0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetState: {fileID: 4318875315386049484}
