@@ -33,6 +33,7 @@ There will be two human-controlled players. We will initially do this locally (o
 Our enemies will spawn in designated spots where items can be collected. They will move around, but won’t stray too far from their spawn point. The AI enemies will be hostile towards the player(s), and will use their item to attack them. Defeating the AI enemies will be easier than defeating the human opponent and will reward  the player with the enemy’s item.
 
 **AI FSM:**
+<img width="960" height="720" alt="Finite state take 3" src="https://github.com/user-attachments/assets/fb6c8e05-b1b6-4150-ad76-4eefa26d303c" />
 
 * Idle
     The idle state occurs whenever the player is out of the enemies range, the enemy waits for the player to approach, its only transition, is to the target state, which occurs when a player walks into its zone  
