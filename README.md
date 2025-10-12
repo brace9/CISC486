@@ -34,10 +34,12 @@ Our enemies will spawn in designated spots where items can be collected. They wi
 
 **AI FSM:**
 
-* Idle  
-* Attack (use held item to attack nearby player)  
-* Launch (use specific movement-based items to launch towards player)  
+* Idle
+    The idle state occurs whenever the player is out of the enemies range, the enemy waits for the player to approach, its only transition, is to the target state, which occurs when a player walks into its zone  
+* Attack (use held item to attack nearby player)
+    The attack state occurs once the player has stayed in the enemies range for enough time, the enemy uses its item to perform an action to attack the player, if the player leaves the enemies range, the enemy goes back to being idle, if the attack finishes, the enemy goes back to the target state
 * Target (target and pathfind towards nearby player)
+    The target state occurs when the player is within range, they pathfind slowly towards the player, when enough time has passed, they swich to the attack state and use their attack
 
 ## **Scripted Events**  
 As the game goes on, stars and AI enemies will randomly spawn across the map at fixed intervals. Players can (should) make their way towards these to increase their chance of winning or earning stars.
