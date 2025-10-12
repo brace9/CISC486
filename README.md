@@ -51,3 +51,7 @@ The game will take place in a fairly open grassy arena with various platforms, o
 Most sounds, models, and other assets will likely be taken from free packs on the Unity Asset Store, itch.io, and more.
 
 Various free websites and tools may also be of use, such as paint.net for graphics, Audacity for audio editing, and Mixamo for 3D animations.
+
+## **Gamplay Video**
+https://www.youtube.com/watch?v=kdy3EV7AYPY
+
