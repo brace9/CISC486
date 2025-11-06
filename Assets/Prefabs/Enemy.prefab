@@ -224,11 +224,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zone: {fileID: 0}
   item: {fileID: 7721966698985915812}
-  changeDestinationEvery: {x: 4, y: 9}
+  changeIdleDestinationEvery: {x: 4, y: 9}
   targetPlayer: {fileID: 0}
+  changeFleeDestinationEvery: {x: 0.5, y: 1}
+  playerSearchRadius: 25
+  fleeSpeedMult: 3.2
+  fleeDistance: 10
   material_idle: {fileID: 2100000, guid: dd5fbbe4a99722f40bebffabc5a9f9e3, type: 2}
   material_target: {fileID: 2100000, guid: 8e530cd9e13d1514d95fcce1f5b30d69, type: 2}
   material_attack: {fileID: 2100000, guid: 9f862ade068d3bf4b919a11d3ae7b2a9, type: 2}
+  material_flee: {fileID: 2100000, guid: c4f3edad759e285428c5ddbcf329d985, type: 2}
 --- !u!195 &8376912348437329490
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -239,7 +244,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

@@ -6,6 +6,7 @@ public enum EnemyState
 {
     IDLE,       // Wander aimlessly around zone
     TARGET,     // Pathfind towards player
+    FLEE,       // Run away from player
     ATTACK      // Use held item on player
 }
 
@@ -15,10 +16,16 @@ public class Enemy : MonoBehaviour
     public BaseItem item;
 
     [Header("Idle")]
-    public Vector2 changeDestinationEvery = new Vector2(4, 9);
+    public Vector2 changeIdleDestinationEvery = new Vector2(4, 9);
 
     // [Header("Target")]
     [HideInInspector] public GameObject targetPlayer;
+
+    [Header("Flee")]
+    public Vector2 changeFleeDestinationEvery = new Vector2(0.5f, 1.0f);
+    public float playerSearchRadius = 25.0f;
+    public float fleeSpeedMult = 2.0f;
+    public float fleeDistance = 10.0f;
 
     EnemyState currentState = EnemyState.IDLE;
 
@@ -26,6 +33,7 @@ public class Enemy : MonoBehaviour
     Rigidbody rb;
     MeshRenderer rend;
 
+    float baseSpeed;
     float nextPositionChange;
     float nextItemUse;
 
@@ -33,6 +41,7 @@ public class Enemy : MonoBehaviour
     public Material material_idle;
     public Material material_target;
     public Material material_attack;
+    public Material material_flee;
 
     void Awake()
     {
@@ -40,6 +49,8 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         navmesh = GetComponent<NavMeshAgent>();
         if (zone) zone.enemy = this;
+
+        baseSpeed = navmesh.speed;
 
         ChangeState(currentState);
     }
@@ -54,8 +65,18 @@ public class Enemy : MonoBehaviour
         else if (currentState is EnemyState.TARGET)
             RunTargetState();
 
+        else if (currentState is EnemyState.FLEE)
+            RunFleeState();
+
         else if (currentState is EnemyState.ATTACK)
             RunAttackState();
+
+
+        // debug key to test fleeing
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            ChangeState(EnemyState.FLEE);
+        }
     }
 
     public void ChangeState(EnemyState state)
@@ -67,9 +88,10 @@ public class Enemy : MonoBehaviour
 
             // if the player walks out of the enemy zone while in the middle of the jump, it will become idle, and want to reset its path, 
             // but if it's mid-air, resetting the path will cause issues.
-             if (navmesh != null && IsGrounded())
+            if (navmesh != null && IsGrounded())
             {
                 navmesh.ResetPath();
+                nextPositionChange = 0;
             }
             else
             {
@@ -77,6 +99,12 @@ public class Enemy : MonoBehaviour
             }
 
             if (material_idle != null) rend.material = material_idle;
+        }
+
+        else if (state == EnemyState.FLEE)
+        {
+            nextPositionChange = 0;
+            if (material_flee != null) rend.material = material_flee;
         }
 
         else if (state == EnemyState.TARGET)
@@ -89,6 +117,8 @@ public class Enemy : MonoBehaviour
         {
             if (material_attack != null) rend.material = material_attack;
         }
+
+        navmesh.speed = baseSpeed * (IsFleeing() ? fleeSpeedMult : 1);
     }
 
     // Navmesh requires RB to be disabled, so toggle it for physics effects
@@ -124,7 +154,7 @@ public class Enemy : MonoBehaviour
     {
         if (zone != null && Time.time > nextPositionChange)
         {
-            ScheduleNextIdleMovement();
+            ScheduleNextMovement();
 
             var targetPos = zone.GetRandomPoint();
             // print($"Picked random point: {targetPos}");
@@ -134,6 +164,36 @@ public class Enemy : MonoBehaviour
             {
                 // print("Heading to destination!");
                 PathfindTo(targetPos);
+            }
+        }
+    }
+
+    // Flee state
+    void RunFleeState()
+    {
+        if (Time.time > nextPositionChange)
+        {
+            ScheduleNextMovement();
+
+            Transform fleeFrom = FindNearestPlayer(playerSearchRadius);
+            if (fleeFrom == null) return;
+
+            Vector3 fleeDir = (transform.position - fleeFrom.position).normalized; // opposite direction of player
+            Vector3 fleeTo = transform.position + (fleeDir * fleeDistance); // flee to this point
+
+            // test if flee position is valid
+            if (NavMesh.SamplePosition(fleeTo, out NavMeshHit hit, 4f, NavMesh.AllAreas))
+            {
+                navmesh.SetDestination(hit.position);
+            }
+            // otherwise just pick a decent nearby position
+            else
+            {
+                Vector3 randomFlee = (Random.insideUnitSphere * fleeDistance) + transform.position;
+                if (NavMesh.SamplePosition(randomFlee, out NavMeshHit hit2, 4f, NavMesh.AllAreas))
+                {
+                    navmesh.SetDestination(hit.position);
+                }
             }
         }
     }
@@ -157,14 +217,15 @@ public class Enemy : MonoBehaviour
     // Attack state
     void RunAttackState()
     {
-
+        // wip
     }
 
 
-    // Schedule the next time the enemy will aimlessly wander
-    void ScheduleNextIdleMovement()
+    // Schedule the next time the enemy's pathfinding should update
+    void ScheduleNextMovement()
     {
-        nextPositionChange = Time.time + Random.Range(changeDestinationEvery.x, changeDestinationEvery.y);
+        var timer = IsFleeing() ? changeFleeDestinationEvery : changeIdleDestinationEvery;
+        nextPositionChange = Time.time + Random.Range(timer.x, timer.y);
     }
 
     // Schedule the next time the enemy will use their item
@@ -176,9 +237,34 @@ public class Enemy : MonoBehaviour
             print($"Will use item in {nextItemUse - Time.time} secs");
         }
     }
-    
+
+    Transform FindNearestPlayer(float radius)
+    {
+        var players = GameObject.FindGameObjectsWithTag("Player");
+        float maxDist = radius;
+        Transform closestPlayer = null;
+
+        // Search all Player objects and find the closest one
+        foreach (var p in players)
+        {
+            float dist = Vector3.Distance(transform.position, p.transform.position);
+            if (dist < maxDist)
+            {
+                maxDist = dist;
+                closestPlayer = p.transform;
+            }
+        }
+
+        return closestPlayer;
+    }
+
     bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, 1.1f);
+    }
+    
+    public bool IsFleeing()
+    {
+        return currentState is EnemyState.FLEE;
     }
 }

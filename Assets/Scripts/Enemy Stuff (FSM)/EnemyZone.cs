@@ -15,7 +15,7 @@ public class EnemyZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (!enemy.targetPlayer && other.gameObject.tag == "PlayerBody")
+        if (!enemy.targetPlayer && other.gameObject.tag == "PlayerBody" && !enemy.IsFleeing())
         {
             enemy.targetPlayer = other.gameObject; // Player body
             enemy.ChangeState(EnemyState.TARGET);
@@ -24,7 +24,7 @@ public class EnemyZone : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == enemy.targetPlayer)
+        if (other.gameObject == enemy.targetPlayer && !enemy.IsFleeing())
         {
             enemy.targetPlayer = null;
             enemy.ChangeState(EnemyState.IDLE);
