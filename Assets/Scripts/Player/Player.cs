@@ -5,6 +5,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
+    public int stars = 0;
+
     public KeyCode itemKey = KeyCode.LeftShift;
 
     public BaseItem item;
@@ -13,7 +15,7 @@ public class Player : MonoBehaviour
     {
         if (item != null && Input.GetKey(itemKey))
         {
-            print(item);
+            print($"Using item: {item}");
             item.Use();
         }
             
