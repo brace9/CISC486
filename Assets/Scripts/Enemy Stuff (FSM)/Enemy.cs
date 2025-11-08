@@ -12,8 +12,12 @@ public enum EnemyState
 
 public class Enemy : MonoBehaviour
 {
+    public float hp = 5;
+    public float fleeHP = 1;
+
     public EnemyZone zone;
     public BaseItem item;
+    public GameObject droppedItem;
 
     [Header("Idle")]
     public Vector2 changeIdleDestinationEvery = new Vector2(4, 9);
@@ -54,7 +58,7 @@ public class Enemy : MonoBehaviour
 
         ChangeState(currentState);
     }
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -77,6 +81,36 @@ public class Enemy : MonoBehaviour
         {
             ChangeState(EnemyState.FLEE);
         }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            TakeDamage(1);
+        }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        hp -= damage;
+
+        if (hp <= 0)
+        {
+            OnDefeated();
+        }
+
+        else if (hp <= fleeHP)
+        {
+            ChangeState(EnemyState.FLEE);
+        }
+    }
+
+    public void OnDefeated()
+    {
+        if (droppedItem != null && item != null)
+        {
+            var drop = Instantiate(droppedItem, transform.position, Quaternion.identity);
+            drop.GetComponent<ItemPickup>().item = item;
+        }
+
+        Destroy(zone.gameObject);
     }
 
     public void ChangeState(EnemyState state)
@@ -136,7 +170,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitUntil(() => IsGrounded());
         if (rb != null)
             rb.isKinematic = true;
-            
+
 
         ToggleRigidbody(false);
     }
@@ -262,7 +296,7 @@ public class Enemy : MonoBehaviour
     {
         return Physics.Raycast(transform.position, Vector3.down, 1.1f);
     }
-    
+
     public bool IsFleeing()
     {
         return currentState is EnemyState.FLEE;

@@ -222,8 +222,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fefc64294080d54c8281f89775bba1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 5
+  fleeHP: 1
   zone: {fileID: 0}
   item: {fileID: 7721966698985915812}
+  droppedItem: {fileID: 3871354084434531701, guid: 5a2b0f18fb897bc45b6c9920009d4f9f, type: 3}
   changeIdleDestinationEvery: {x: 4, y: 9}
   targetPlayer: {fileID: 0}
   changeFleeDestinationEvery: {x: 0.5, y: 1}
