@@ -29,4 +29,9 @@ public class BaseItem : MonoBehaviour
     {
         disabledUntil = Time.time + secs;
     }
+
+    public virtual string GetName()
+    {
+        return "...";
+    }
 }

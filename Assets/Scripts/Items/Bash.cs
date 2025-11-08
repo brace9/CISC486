@@ -32,4 +32,9 @@ public class Bash : BaseItem
             Cooldown(cooldownSeconds);
         }
     }
+
+    public override string GetName()
+    {
+        return "Bash";
+    }
 }

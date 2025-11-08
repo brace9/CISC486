@@ -5,10 +5,16 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
+    [Header("Natural Stars")]
     public GameObject starPrefab;
     public Vector2 starRespawnTime = new Vector2(3, 4); // min-max time for a new star to spawn after one is collected
     public int disableRecentPositions = 3; // don't spawn stars in the last N locations that already had
+
+    [Header("Dropped Stars")]
+    public GameObject droppedStarPrefab;
+    public float droppedUpwardsForce = 10.0f;
+    public float droppedSidewaysForce = 5.0f;
+    public float droppedEnableTime = 0.6f; // Time before you can collect the star
 
     List<Vector3> starPositions = new();
     List<Vector3> recentStarPositions = new();
@@ -47,6 +53,19 @@ public class GameManager : MonoBehaviour
         Instantiate(starPrefab, pos, Quaternion.identity);
         print($"New star spawned at {pos}");
     }
-    
+
+    public void SpawnDroppedStar(Transform loc)
+    {
+        if (loc == null || droppedStarPrefab == null) return;
+
+        var dropped = Instantiate(droppedStarPrefab, loc.position, Quaternion.identity);
+
+        Vector3 force = (Vector3.up * droppedUpwardsForce)
+            + new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized * droppedSidewaysForce;
+
+        dropped.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
+
+        StartCoroutine(dropped.transform.GetChild(0).GetComponent<Star>().ToggleCollectible(true, droppedEnableTime));
+    }
 
 }

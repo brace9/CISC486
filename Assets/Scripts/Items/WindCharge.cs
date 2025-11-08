@@ -26,4 +26,9 @@ public class WindCharge : BaseItem
             Cooldown(3);
         }
     }
+
+    public override string GetName()
+    {
+        return "Wind Charge";
+    }
 }

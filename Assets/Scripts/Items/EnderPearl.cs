@@ -43,4 +43,9 @@ public class EnderPearl : BaseItem
         base.Use();
         Cooldown(3);
     }
+
+    public override string GetName()
+    {
+        return "Warp Pearl";
+    }
 }

@@ -5,10 +5,11 @@ using UnityEngine;
 public class Star : MonoBehaviour
 {
     public bool isIdle = true;  // for naturally spawned stars
+    public bool collectible = true;
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "PlayerBody")
+        if (collectible && other.gameObject.tag == "PlayerBody")
         {
             Player p = other.transform.parent.GetComponent<Player>();
             p.stars += 1;
@@ -21,5 +22,11 @@ public class Star : MonoBehaviour
 
             Destroy(gameObject);
         }
+    }
+
+    public IEnumerator ToggleCollectible(bool enabled, float time)
+    {
+        yield return new WaitForSeconds(time);
+        collectible = enabled;
     }
 }
