@@ -10,7 +10,7 @@ public enum EnemyState
     ATTACK      // Use held item on player
 }
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     public float hp = 5;
     public float fleeHP = 1;
@@ -100,6 +100,14 @@ public class Enemy : MonoBehaviour
         {
             ChangeState(EnemyState.FLEE);
         }
+    }
+
+    // IDamageable implementation - allow callers to include the damage source if available.
+    public void TakeDamage(float damage, GameObject source)
+    {
+        // For now, we simply forward to the single-arg TakeDamage implementation.
+        // Source can be used for knockback, scoring, or attribution in the future.
+        TakeDamage(damage);
     }
 
     public void OnDefeated()
