@@ -19,11 +19,19 @@ public class Enemy : MonoBehaviour, IDamageable
     public BaseItem item;
     public GameObject droppedItem;
 
+
+    [Header("Attacking")]
+    public float attackRange = 2f;
+    public int attackDamage = 1;
+    public float attackInterval = 1f;
+
+    private float nextAttackTime;
+
     [Header("Idle")]
     public Vector2 changeIdleDestinationEvery = new Vector2(4, 9);
 
-    // [Header("Target")]
-    [HideInInspector] public GameObject targetPlayer;
+    [Header("Target")]
+    public GameObject targetPlayer;
 
     [Header("Flee")]
     public Vector2 changeFleeDestinationEvery = new Vector2(0.5f, 1.0f);
@@ -159,6 +167,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
         else if (state == EnemyState.ATTACK)
         {
+            nextAttackTime = Time.time + attackInterval;
             if (material_attack != null) rend.material = material_attack;
         }
 
@@ -247,6 +256,11 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         if (!targetPlayer) return;
 
+        if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= attackRange)
+        {
+            ChangeState(EnemyState.ATTACK);
+        }
+
         // Target player directly
         PathfindTo(targetPlayer.transform.position);
 
@@ -261,7 +275,57 @@ public class Enemy : MonoBehaviour, IDamageable
     // Attack state
     void RunAttackState()
     {
-        // wip
+        if (!targetPlayer)
+        {
+            ChangeState(EnemyState.IDLE);
+            return;
+        }
+
+        // if player is too far, go back to targeting
+        if (Vector3.Distance(transform.position, targetPlayer.transform.position) > attackRange * 1.5f)
+        {
+            ChangeState(EnemyState.TARGET);
+        }
+
+        // Face the player
+        Vector3 lookDir = (targetPlayer.transform.position - transform.position);
+        lookDir.y = 0;
+        if (lookDir != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookDir), Time.deltaTime * 5f);
+        }
+
+        // Attack on interval
+        if (Time.time >= nextAttackTime)
+        {
+            nextAttackTime = Time.time + attackInterval;
+            PerformAttack();
+            //print("Attacked!");
+        }
+
+    }
+
+    void PerformAttack()
+    {
+        if (!targetPlayer) return;
+
+        Player player = targetPlayer.GetComponentInParent<Player>();
+        if (player != null)
+        {
+            player.TakeDamage(attackDamage);
+
+            // Knockback
+            Vector3 knockbackDir = (targetPlayer.transform.position - transform.position).normalized;
+            knockbackDir.y = 0.25f;
+            Rigidbody playerRb = player.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                //set velocity to 0 before knocking back
+                playerRb.velocity = new Vector3(0f, 0f, 0f);
+                playerRb.AddForce(knockbackDir * 50f, ForceMode.Impulse);
+            }
+        }
+        
     }
 
 
