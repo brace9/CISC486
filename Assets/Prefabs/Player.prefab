@@ -131,8 +131,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 762e113b1d0ead24eaf953af53052790, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingHP: 3
+  stars: 3
+  invincibilitySecs: 1
+  starText: {fileID: 0}
   itemKey: 122
+  debugDamageKey: 8
+  attackKey: 323
   item: {fileID: 0}
+  attackDistance: 5
+  attackSpeed: 1
+  attackDamage: 1
+  attacking: 0
+  canAttack: 1
 --- !u!1 &5825631606976842514
 GameObject:
   m_ObjectHideFlags: 0

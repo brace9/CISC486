@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fefc64294080d54c8281f89775bba1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 5
+  hp: 3
   fleeHP: 1
   zone: {fileID: 0}
   item: {fileID: 7721966698985915812}

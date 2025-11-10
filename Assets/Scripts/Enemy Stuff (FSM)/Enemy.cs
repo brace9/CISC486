@@ -216,6 +216,7 @@ public class Enemy : MonoBehaviour, IDamageable
             if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 64, NavMesh.AllAreas))
             {
                 // print("Heading to destination!");
+                targetPos.y = transform.position.y;
                 PathfindTo(targetPos);
             }
         }
@@ -237,7 +238,7 @@ public class Enemy : MonoBehaviour, IDamageable
             // test if flee position is valid
             if (NavMesh.SamplePosition(fleeTo, out NavMeshHit hit, 4f, NavMesh.AllAreas))
             {
-                navmesh.SetDestination(hit.position);
+                PathfindTo(hit.position);
             }
             // otherwise just pick a decent nearby position
             else
@@ -245,7 +246,7 @@ public class Enemy : MonoBehaviour, IDamageable
                 Vector3 randomFlee = (Random.insideUnitSphere * fleeDistance) + transform.position;
                 if (NavMesh.SamplePosition(randomFlee, out NavMeshHit hit2, 4f, NavMesh.AllAreas))
                 {
-                    navmesh.SetDestination(hit.position);
+                    PathfindTo(hit.position);
                 }
             }
         }
