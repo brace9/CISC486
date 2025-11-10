@@ -91,6 +91,8 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         hp -= damage;
 
+        print("took damage! hp left: " + hp);
+
         if (hp <= 0)
         {
             OnDefeated();

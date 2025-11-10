@@ -16,7 +16,16 @@ public class Player : MonoBehaviour
     public Text starText;
     public KeyCode itemKey = KeyCode.LeftShift;
     public KeyCode debugDamageKey = KeyCode.Backspace;
+    public KeyCode attackKey = KeyCode.Mouse0;
     public BaseItem item;
+
+    [Header("Attacking")]
+    public float attackDistance = 3f;
+    public float attackSpeed = 1;
+    public int attackDamage = 1;
+
+    public bool attacking = false;
+    public bool canAttack = true;
 
     GameManager gm;
 
@@ -44,6 +53,56 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(debugDamageKey))
         {
             TakeDamage(1);
+        }
+        
+        if(Input.GetKeyDown(attackKey))
+        {
+            Attack();
+        }
+    }
+
+    public void Attack()
+    {
+        if (attacking || !canAttack)
+        {
+            //print("Unsuccessful Attack");
+            return;
+        }
+
+        canAttack = false;
+        attacking = true;
+
+        Invoke(nameof(ResetAttack), attackSpeed);
+        Invoke(nameof(AttackRaycast), 0);
+
+        //print("Successful Attack");
+    }
+
+    void ResetAttack()
+    {
+        attacking = false;
+        canAttack = true;
+    }
+
+    void AttackRaycast()
+    {
+        Camera playerCam = GetComponentInChildren<Camera>();
+        Transform cameraTransform = playerCam.transform;
+
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, attackDistance))
+        {
+            if (hit.collider.name == "Enemy")
+            {
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(1);
+                }
+            }
         }
     }
 
