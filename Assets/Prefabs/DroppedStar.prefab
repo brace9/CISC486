@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2505957743454842874}
   - component: {fileID: 2929558986682112610}
   - component: {fileID: 7052809383042632796}
+  - component: {fileID: -7935666576437927190}
   m_Layer: 6
   m_Name: DroppedStar
   m_TagString: Untagged
@@ -82,6 +83,27 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0356572, y: 1.2971417, z: 1}
   m_Center: {x: -0.038628697, y: -0.10399991, z: 0}
+--- !u!114 &-7935666576437927190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933572680052279186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2122865174
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1001 &5861417664830782432
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -97,6 +119,10 @@ PrefabInstance:
     - target: {fileID: 2220302165070318254, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
       propertyPath: collectible
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3034403178228368574, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2122865174
       objectReference: {fileID: 0}
     - target: {fileID: 3312193484607390745, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
       propertyPath: m_LocalPosition.x
@@ -144,6 +170,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2146524341796155160, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
+    - {fileID: 3034403178228368574, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
 
     public float startingHP = 3;
@@ -28,6 +30,12 @@ public class Player : MonoBehaviour
     public bool canAttack = true;
 
     GameManager gm;
+
+    public override void OnNetworkSpawn()
+	{
+        if (gm == null) Start();
+        gm.OnSpawnPlayer(this);
+	}
 
     void Start()
     {

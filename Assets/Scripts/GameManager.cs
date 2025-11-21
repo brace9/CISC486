@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Player")]
+    public Transform startPos;
+
     [Header("Natural Stars")]
     public GameObject starPrefab;
     public Vector2 starRespawnTime = new Vector2(3, 4); // min-max time for a new star to spawn after one is collected
@@ -35,6 +38,11 @@ public class GameManager : MonoBehaviour
     {
         SpawnStar();
     }
+
+    public void OnSpawnPlayer(Player player)
+	{
+		player.transform.position = startPos.position;
+	}
 
     public void OnIdleStarCollected()
     {
