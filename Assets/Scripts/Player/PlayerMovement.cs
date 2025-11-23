@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
@@ -30,7 +32,7 @@ public class PlayerMovement : MonoBehaviour
     public static LayerMask WhatIsGround;
 
     // Start is called before the first frame update
-    void Start()
+    public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -88,6 +90,8 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return;  // Networking: Only control your own player
+
         //check if grounded
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + raycastOffset, whatIsGround);
 
@@ -100,8 +104,11 @@ public class PlayerMovement : MonoBehaviour
         else
             rb.drag = 0;
     }
+
     private void FixedUpdate()
     {
+        if (!IsOwner) return;  // Networking: Only control your own player
+
         MovePlayer();
     }
 

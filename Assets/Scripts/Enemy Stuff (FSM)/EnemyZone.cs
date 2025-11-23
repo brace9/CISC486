@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class EnemyZone : MonoBehaviour
+public class EnemyZone : NetworkBehaviour
 {
+    public GameObject enemyPrefab;
+    public Transform spawnPosition;
     [HideInInspector] public Enemy enemy;
 
     Collider trigger;
@@ -12,6 +15,12 @@ public class EnemyZone : MonoBehaviour
     {
         trigger = GetComponent<Collider>();
     }
+
+    public void CreateEnemy()
+	{
+		enemy = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity).GetComponent<Enemy>();
+        enemy.zone = this;
+	}
 
     void OnTriggerEnter(Collider other)
     {

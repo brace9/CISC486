@@ -1,21 +1,17 @@
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
 
     public float startingHP = 3;
-    public int stars = 3;
     public float invincibilitySecs = 1;
 
-    float hp;
-    bool invincible;
+    public bool invincible;
 
-    public Text starText;
+    public MeshRenderer body;
     public KeyCode itemKey = KeyCode.LeftShift;
     public KeyCode debugDamageKey = KeyCode.Backspace;
     public KeyCode attackKey = KeyCode.Mouse0;
@@ -29,27 +25,48 @@ public class Player : NetworkBehaviour
     public bool attacking = false;
     public bool canAttack = true;
 
+    [Header("Networking")]
+    public PlayerServer server;
+    public Material hostSkin;
+    public Material clientSkin;
+    public GameObject[] disableForOthers;
+
     GameManager gm;
 
     public override void OnNetworkSpawn()
 	{
-        if (gm == null) Start();
-        gm.OnSpawnPlayer(this);
-	}
+        body.material = IsHost ? hostSkin : clientSkin;
+        server = GetComponent<PlayerServer>();
 
-    void Start()
-    {
+        // Networking: Only control your own player
+        if (!IsOwner)
+		{
+            {
+                foreach (var obj in disableForOthers)
+                    Destroy(obj);
+            }
+            return;
+		} 
+
         gm = FindObjectOfType<GameManager>();
-        hp = startingHP;
-        if (starText != null) starText.gameObject.SetActive(true);
-    }
+        server.gm = gm;
+
+        transform.position = !IsClient ? gm.p1Start.position : gm.p2Start.position;
+
+        if (gm.starText != null) gm.starText.gameObject.SetActive(true);
+
+        if (IsHost)
+            gm.StartGame();
+	}
 
     void Update()
     {
-        if (starText != null)
+        if (!IsOwner) return;  // Networking: Only control your own player
+
+        if (gm.starText != null)
         {
-            starText.text = $"HP: {hp}\nStars: {stars}\nItem: {(item == null ? "None" : item.GetName())}";
-            if (invincible) starText.text += "\n(invincible)";
+            gm.starText.text = $"HP: {server.hp.Value}\nStars: {server.stars.Value}"; // \nItem: {(item == null ? "None" : item.GetName())}
+            if (invincible) gm.starText.text += "\n(invincible)";
         }
 
         if (item != null && Input.GetKey(itemKey))
@@ -60,7 +77,7 @@ public class Player : NetworkBehaviour
 
         if (Input.GetKeyDown(debugDamageKey))
         {
-            TakeDamage(1);
+            server.TakeDamage(1);
         }
         
         if(Input.GetKeyDown(attackKey))
@@ -71,19 +88,13 @@ public class Player : NetworkBehaviour
 
     public void Attack()
     {
-        if (attacking || !canAttack)
-        {
-            //print("Unsuccessful Attack");
-            return;
-        }
+        if (attacking || !canAttack) return;
 
         canAttack = false;
         attacking = true;
 
         Invoke(nameof(ResetAttack), attackSpeed);
         Invoke(nameof(AttackRaycast), 0);
-
-        //print("Successful Attack");
     }
 
     void ResetAttack()
@@ -97,47 +108,11 @@ public class Player : NetworkBehaviour
         Camera playerCam = GetComponentInChildren<Camera>();
         Transform cameraTransform = playerCam.transform;
 
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, attackDistance))
-        {
-            if (hit.collider.name == "Enemy")
-            {
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
-
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(1);
-                }
-            }
-        }
+        server.Attack(cameraTransform.position, cameraTransform.forward, attackDistance);
     }
 
     public void TakeDamage(float damage)
     {
-        if (invincible) return;
-
-        hp -= damage;
-
-        // At 0 HP, heal to full but drop a star
-        if (hp <= 0)
-        {
-            hp = startingHP;
-            StartCoroutine(MakeInvincible(invincibilitySecs));
-
-            if (stars >= 1)
-            {
-                stars -= 1;
-                gm.SpawnDroppedStar(transform);
-            }
-        }
-    }
-
-    public IEnumerator MakeInvincible(float time)
-    {
-        invincible = true;
-        yield return new WaitForSeconds(time);
-        invincible = false;
+        server.TakeDamage(damage);
     }
 }

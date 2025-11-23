@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
+using Unity.Netcode;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     [Header("Player")]
-    public Transform startPos;
+    public Transform p1Start;
+    public Transform p2Start;
+    public Text starText;
 
     [Header("Natural Stars")]
     public GameObject starPrefab;
@@ -36,13 +40,20 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (!IsServer) return;
+
         SpawnStar();
     }
 
-    public void OnSpawnPlayer(Player player)
+    public void StartGame()
 	{
-		player.transform.position = startPos.position;
-	}
+		var zones = GameObject.FindGameObjectsWithTag("EnemyZone");
+
+        foreach (var zone in zones)
+        {
+            zone.GetComponent<EnemyZone>().CreateEnemy();
+        }
+    }
 
     public void OnIdleStarCollected()
     {
@@ -52,6 +63,9 @@ public class GameManager : MonoBehaviour
     void SpawnStar()
     {
         var spawnLocations = starPositions.Except(recentStarPositions).ToArray();
+
+        if (spawnLocations.Length < 1) return;
+
         Vector3 pos = spawnLocations[Random.Range(0, spawnLocations.Length)];
 
         recentStarPositions.Add(pos);
@@ -64,6 +78,8 @@ public class GameManager : MonoBehaviour
 
     public void SpawnDroppedStar(Transform loc)
     {
+        if (!IsServer) return;
+
         if (loc == null || droppedStarPrefab == null) return;
 
         var dropped = Instantiate(droppedStarPrefab, loc.position, Quaternion.identity);
