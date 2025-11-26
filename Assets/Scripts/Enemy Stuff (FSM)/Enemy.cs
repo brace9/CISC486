@@ -20,7 +20,6 @@ public class Enemy : NetworkBehaviour, IDamageable
     public BaseItem item;
     public GameObject droppedItem;
 
-
     [Header("Attacking")]
     public float attackRange = 2f;
     public int attackDamage = 1;
@@ -55,6 +54,31 @@ public class Enemy : NetworkBehaviour, IDamageable
     public Material material_target;
     public Material material_attack;
     public Material material_flee;
+
+    [ClientRpc]
+    public void SetZoneClientRpc(NetworkObjectReference zoneRef)
+    {
+        if (zoneRef.TryGet(out NetworkObject zoneNetObj))
+        {
+            zone = zoneNetObj.GetComponent<EnemyZone>();
+            Debug.Log($"Enemy zone set on client: {zone != null}");
+        }
+    }
+
+    [ClientRpc]
+    public void SetTargetPlayerClientRpc(NetworkObjectReference playerRef)
+    {
+        if (playerRef.TryGet(out NetworkObject playerNetObj))
+        {
+            targetPlayer = playerNetObj.gameObject;
+        }
+    }
+
+    [ClientRpc]
+    public void ClearTargetPlayerClientRpc()
+    {
+        targetPlayer = null;
+    }
 
     void Awake()
     {

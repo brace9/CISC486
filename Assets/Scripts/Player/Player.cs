@@ -43,7 +43,7 @@ public class Player : NetworkBehaviour
 		{
             {
                 foreach (var obj in disableForOthers)
-                    Destroy(obj);
+                    obj.SetActive(false);
             }
             return;
 		} 

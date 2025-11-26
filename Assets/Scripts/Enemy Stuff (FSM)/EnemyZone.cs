@@ -11,6 +11,12 @@ public class EnemyZone : NetworkBehaviour
 
     Collider trigger;
 
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer) CreateEnemy();
+        print($"IsServer = {IsServer}");
+    }
+
     void Awake()
     {
         trigger = GetComponent<Collider>();
@@ -18,21 +24,31 @@ public class EnemyZone : NetworkBehaviour
 
     public void CreateEnemy()
 	{
-		enemy = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity).GetComponent<Enemy>();
-        enemy.zone = this;
-	}
+        if (!IsServer) return;
+
+		GameObject enemyObj = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity);
+        NetworkObject netObj = enemyObj.GetComponent<NetworkObject>();
+        netObj.Spawn();
+
+        enemy = enemyObj.GetComponent<Enemy>();
+        enemy.SetZoneClientRpc(new NetworkObjectReference(GetComponent<NetworkObject>()));
+    }
 
     void OnTriggerEnter(Collider other)
     {
+        if (!IsServer || enemy == null) return;
+
         if (!enemy.targetPlayer && other.gameObject.tag == "PlayerBody" && !enemy.IsFleeing())
         {
             enemy.targetPlayer = other.gameObject; // Player body
             enemy.ChangeState(EnemyState.TARGET);
         }
+        
     }
 
     void OnTriggerExit(Collider other)
-    {
+    {  
+        if (!IsServer || enemy == null) return;
         if (other.gameObject == enemy.targetPlayer && !enemy.IsFleeing())
         {
             enemy.targetPlayer = null;
