@@ -1,32 +1,47 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-public class Star : MonoBehaviour
+using Unity.Netcode;
+public class Star : NetworkBehaviour
 {
     public bool isIdle = true;  // for naturally spawned stars
-    public bool collectible = true;
+    public NetworkVariable<bool> collectible = new NetworkVariable<bool>(true);  // server-authoritative
 
-    void OnTriggerStay(Collider other)
+    private void OnTriggerStay(Collider other)
     {
-        if (collectible && other.gameObject.tag == "PlayerBody")
+        if (!IsServer) return; // Only the server handles collection
+        if (!collectible.Value) return;
+
+        if (other.CompareTag("PlayerBody"))
         {
-            Player p = other.transform.parent.GetComponent<Player>();
-            p.server.GainStar();
+            Player player = other.transform.parent.GetComponent<Player>();
+            if (player != null)
+            {
+                // Update server-authoritative star count
+                player.server.GainStar();
 
-            print($"Player now has {p.server.stars.Value} stars!");
+                Debug.Log($"Player now has {player.server.stars.Value} stars!");
 
-            // Tell GameManager to spawn a new star in a few seconds (naturally spawned stars only)
-            if (isIdle)
-                FindObjectOfType<GameManager>().OnIdleStarCollected();
+                // Only naturally spawned stars trigger a respawn
+                if (isIdle)
+                {
+                    GameManager gm = FindObjectOfType<GameManager>();
+                    if (gm != null)
+                        gm.OnIdleStarCollected();
+                }
 
-            Destroy(gameObject);
+                // Remove the star from all clients
+                NetworkObject netObj = GetComponent<NetworkObject>();
+                if (netObj != null)
+                    netObj.Despawn(true); // true = destroy on all clients
+            }
         }
     }
-
-    public IEnumerator ToggleCollectible(bool enabled, float time)
+    // Make star collectible after a delay (for dropped stars)
+    public IEnumerator ToggleCollectible(bool enabled, float delay)
     {
-        yield return new WaitForSeconds(time);
-        collectible = enabled;
+        yield return new WaitForSeconds(delay);
+
+        if (IsServer)
+            collectible.Value = enabled;
     }
 }

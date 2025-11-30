@@ -18,7 +18,7 @@ namespace Networking
         {
             networkManager = GetComponent<NetworkManager>();
         }
-
+        
         void Update()
         {
             if (started)

@@ -13,12 +13,12 @@ public class GameManager : NetworkBehaviour
     public Text starText;
 
     [Header("Natural Stars")]
-    public GameObject starPrefab;
+    public NetworkObject starPrefab;
     public Vector2 starRespawnTime = new Vector2(3, 4); // min-max time for a new star to spawn after one is collected
     public int disableRecentPositions = 3; // don't spawn stars in the last N locations that already had
 
     [Header("Dropped Stars")]
-    public GameObject droppedStarPrefab;
+    public NetworkObject droppedStarPrefab;
     public float droppedUpwardsForce = 10.0f;
     public float droppedSidewaysForce = 5.0f;
     public float droppedEnableTime = 0.6f; // Time before you can collect the star
@@ -38,33 +38,47 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
 
+        Debug.Log("GameManager OnNetworkSpawn called.");
+        // Only run this on the server
+        if (!IsServer) SpawnStar();
+
+        Debug.Log("Server initializing GameManager...");
+
+        // Start spawning stars
         SpawnStar();
     }
 
     public void StartGame()
-	{
-		var zones = GameObject.FindGameObjectsWithTag("EnemyZone");
+    {
+        if (!IsServer) return;
 
+        var zones = GameObject.FindGameObjectsWithTag("EnemyZone");
         foreach (var zone in zones)
-        {
             zone.GetComponent<EnemyZone>().CreateEnemy();
-        }
     }
 
+    // Called by the star itself when collected
     public void OnIdleStarCollected()
     {
+        if (!IsServer) return;
         Invoke(nameof(SpawnStar), Random.Range(starRespawnTime.x, starRespawnTime.y));
     }
 
     void SpawnStar()
     {
-        var spawnLocations = starPositions.Except(recentStarPositions).ToArray();
+        if (!IsServer) return;
+        Debug.Log("Spawning new star...");
 
-        if (spawnLocations.Length < 1) return;
+        var spawnLocations = starPositions.Except(recentStarPositions).ToArray();
+        if (spawnLocations.Length < 1) {
+                if (spawnLocations.Length < 1)
+    {
+        Debug.Log("No spawn locations available!");
+        return;
+    }}
 
         Vector3 pos = spawnLocations[Random.Range(0, spawnLocations.Length)];
 
@@ -72,24 +86,49 @@ public class GameManager : NetworkBehaviour
         if (recentStarPositions.Count > disableRecentPositions)
             recentStarPositions.RemoveAt(0);
 
-        Instantiate(starPrefab, pos, Quaternion.identity);
+        NetworkObject newStar = Instantiate(starPrefab, pos, Quaternion.identity);
+        newStar.Spawn(); // NETWORK SPAWN
         print($"New star spawned at {pos}");
     }
 
-    public void SpawnDroppedStar(Transform loc)
+    /*
+    public void SpawnDroppedStar(Vector3 position)
     {
         if (!IsServer) return;
+        if (droppedStarPrefab == null) return;
 
-        if (loc == null || droppedStarPrefab == null) return;
-
-        var dropped = Instantiate(droppedStarPrefab, loc.position, Quaternion.identity);
+        NetworkObject dropped = Instantiate(droppedStarPrefab, position, Quaternion.identity);
+        dropped.Spawn();
 
         Vector3 force = (Vector3.up * droppedUpwardsForce)
             + new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized * droppedSidewaysForce;
 
         dropped.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
 
+        // Make collectible after delay
         StartCoroutine(dropped.transform.GetChild(0).GetComponent<Star>().ToggleCollectible(true, droppedEnableTime));
-    }
+    }*/
+    public void SpawnDroppedStar(Transform loc)
+{
+    if (!IsServer) return;
+    if (droppedStarPrefab == null || loc == null) return;
+
+    // Spawn the NetworkObject
+    NetworkObject dropped = Instantiate(droppedStarPrefab, loc.position, Quaternion.identity);
+    dropped.Spawn();
+
+    // Apply upward + random sideways force
+    Vector3 force = (Vector3.up * droppedUpwardsForce)
+        + new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized * droppedSidewaysForce;
+
+    Rigidbody rb = dropped.GetComponent<Rigidbody>();
+    if (rb != null)
+        rb.AddForce(force, ForceMode.Impulse);
+
+    // Make collectible after delay
+    Star starScript = dropped.GetComponent<Star>();
+    if (starScript != null)
+        StartCoroutine(starScript.ToggleCollectible(true, droppedEnableTime));
+}
 
 }

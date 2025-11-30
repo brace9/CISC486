@@ -13,6 +13,7 @@ public class EnemyZone : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log("EnemyZone OnNetworkSpawn called.");
         if (IsServer) CreateEnemy();
         print($"IsServer = {IsServer}");
     }
