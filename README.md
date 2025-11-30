@@ -1,3 +1,11 @@
+# Networking Setup
+1. Open two instances of the game
+2. Press 1 to start one game as a host. Server-side events will be handled on this instance
+3. Press 2 to start the other game as a client
+4. Both instances should be able to control separate players that can interact with each other
+
+--
+
 ## **Game Title**
 
 We feel like we need a chance to play and polish the game before settling on a final name for it. But a potential title could be “Clashout”.
