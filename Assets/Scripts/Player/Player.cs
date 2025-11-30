@@ -116,12 +116,12 @@ public class Player : NetworkBehaviour, IDamageable
 
     public void TakeDamage(float damage)
     {
-        server.TakeDamage(damage);
+        server.TakeDamageServerRpc(damage);
     }
 
     public void TakeDamage(float damage, GameObject source)
     {
-        server.TakeDamage(damage);
+        server.TakeDamageServerRpc(damage);
     }
 
 }

@@ -26,6 +26,9 @@ public class GameManager : NetworkBehaviour
     List<Vector3> starPositions = new();
     List<Vector3> recentStarPositions = new();
 
+    public static GameManager Instance;
+
+
     void Awake()
     {
         // Store positions of stars on the map so we know where to spawn them
@@ -44,6 +47,7 @@ public class GameManager : NetworkBehaviour
         Debug.Log("GameManager OnNetworkSpawn called.");
         // Only run this on the server
         if (!IsServer) SpawnStar();
+        if (IsServer) Instance = this; // server-only singleton
 
         Debug.Log("Server initializing GameManager...");
 

@@ -40,6 +40,7 @@ public class PlayerServer : NetworkBehaviour
             var damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
+                Debug.Log("Hit " + hit.collider.name + ", dealing " + player.attackDamage + " damage.");
                 damageable.TakeDamage(player.attackDamage, gameObject);
             }
             else
@@ -59,11 +60,19 @@ public class PlayerServer : NetworkBehaviour
         Debug.Log("Remote player attacked.");
     }
 
+    [ServerRpc(RequireOwnership = false)]
+
+    public void TakeDamageServerRpc(float damage)
+    {
+        TakeDamage(damage);
+    }
+
     public void TakeDamage(float damage)
 	{
 		if (player.invincible || !IsServer) return;
 
         hp.Value -= damage;
+        Debug.Log($"Player took {damage} damage, HP now {hp.Value}");
 
         // At 0 HP, heal to full but drop a star
         if (hp.Value <= 0)
@@ -75,7 +84,12 @@ public class PlayerServer : NetworkBehaviour
             if (stars.Value >= 1)
             {
                 GainStar(-1);
-                gm.SpawnDroppedStar(transform);
+
+                // Use singleton reference for the server
+                if (GameManager.Instance != null)
+                    GameManager.Instance.SpawnDroppedStar(transform);
+                else
+                    Debug.LogWarning("Server GameManager instance is null!");
             }
         }
 	}
