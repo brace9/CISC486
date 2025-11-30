@@ -69,6 +69,7 @@ public class PlayerServer : NetworkBehaviour
         if (hp.Value <= 0)
         {
             hp.Value = player.startingHP;
+            Debug.Log("Player died, dropping a star.");
             StartCoroutine(MakeInvincible(player.invincibilitySecs));
 
             if (stars.Value >= 1)
