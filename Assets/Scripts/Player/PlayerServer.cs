@@ -28,24 +28,36 @@ public class PlayerServer : NetworkBehaviour
         player.invincible = false;
     }
 
-    public void Attack(Vector3 pos, Vector3 dir, float distance)
-	{
+    [ServerRpc]
+    public void AttackServerRpc(Vector3 pos, Vector3 dir, float distance)
+    {
+        // SERVER AUTHORITATIVE HIT DETECTION
 		if (!IsServer) return;
 
         if (Physics.Raycast(new Ray(pos, dir), out RaycastHit hit, distance))
         {
-            if (hit.collider.TryGetComponent(out Enemy enemy))
-            {
-                enemy.TakeDamage(player.attackDamage);
-            }
 
-            else if (hit.collider.TryGetComponent(out Player pl))
+            var damageable = hit.collider.GetComponentInParent<IDamageable>();
+            if (damageable != null)
             {
-                if (pl != player)
-                    pl.server.TakeDamage(player.attackDamage);
+                damageable.TakeDamage(player.attackDamage, gameObject);
             }
-        }
-	}
+            else
+            {
+                Debug.Log("Hit " + hit.collider.name + " but it is not damageable...?");
+            }
+        }    
+        AttackClientRpc(pos, dir, distance);    
+    }
+
+    [ClientRpc]
+    private void AttackClientRpc(Vector3 pos, Vector3 dir, float distance)
+    {
+        if (IsOwner) return;
+
+        // TODO: Play attack animation on remote players
+        Debug.Log("Remote player attacked.");
+    }
 
     public void TakeDamage(float damage)
 	{

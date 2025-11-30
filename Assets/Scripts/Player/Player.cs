@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Player : NetworkBehaviour
+public class Player : NetworkBehaviour, IDamageable
 {
 
     public float startingHP = 3;
@@ -95,6 +95,7 @@ public class Player : NetworkBehaviour
 
         Invoke(nameof(ResetAttack), attackSpeed);
         Invoke(nameof(AttackRaycast), 0);
+        
     }
 
     void ResetAttack()
@@ -108,11 +109,19 @@ public class Player : NetworkBehaviour
         Camera playerCam = GetComponentInChildren<Camera>();
         Transform cameraTransform = playerCam.transform;
 
-        server.Attack(cameraTransform.position, cameraTransform.forward, attackDistance);
+        server.AttackServerRpc(cameraTransform.position, cameraTransform.forward, attackDistance);
+    
+    
     }
 
     public void TakeDamage(float damage)
     {
         server.TakeDamage(damage);
     }
+
+    public void TakeDamage(float damage, GameObject source)
+    {
+        server.TakeDamage(damage);
+    }
+
 }
