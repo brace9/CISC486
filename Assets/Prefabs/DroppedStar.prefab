@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2929558986682112610}
   - component: {fileID: 7052809383042632796}
   - component: {fileID: -7935666576437927190}
-  - component: {fileID: 3627408101942759298}
   m_Layer: 6
   m_Name: DroppedStar
   m_TagString: Untagged
@@ -105,37 +104,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &3627408101942759298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1933572680052279186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!1001 &5861417664830782432
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -144,10 +112,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2505957743454842874}
     m_Modifications:
-    - target: {fileID: 565334740569322792, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2146524341796155160, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -207,7 +171,6 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 2146524341796155160, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
     - {fileID: 3034403178228368574, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
-    - {fileID: 565334740569322792, guid: bf5d017b0b70b6c48ae2c8078db63b44, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

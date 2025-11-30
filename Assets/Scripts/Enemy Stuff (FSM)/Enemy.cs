@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using Unity.Netcode;
 
 public enum EnemyState
 {
@@ -11,7 +10,7 @@ public enum EnemyState
     ATTACK      // Use held item on player
 }
 
-public class Enemy : NetworkBehaviour, IDamageable
+public class Enemy : MonoBehaviour, IDamageable
 {
     public float hp = 5;
     public float fleeHP = 1;
@@ -61,8 +60,7 @@ public class Enemy : NetworkBehaviour, IDamageable
         rend = GetComponent<MeshRenderer>();
         rb = GetComponent<Rigidbody>();
         navmesh = GetComponent<NavMeshAgent>();
-
-        if (!IsServer) return;
+        if (zone) zone.enemy = this;
 
         baseSpeed = navmesh.speed;
 
@@ -72,7 +70,6 @@ public class Enemy : NetworkBehaviour, IDamageable
     // Update is called once per frame
     void Update()
     {
-        if (!IsServer) return;
 
         if (currentState is EnemyState.IDLE)
             RunIdleState();

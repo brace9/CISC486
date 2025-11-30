@@ -12,9 +12,9 @@ public class Star : MonoBehaviour
         if (collectible && other.gameObject.tag == "PlayerBody")
         {
             Player p = other.transform.parent.GetComponent<Player>();
-            p.server.GainStar();
+            p.stars += 1;
 
-            print($"Player now has {p.server.stars.Value} stars!");
+            print($"Player now has {p.stars} stars!");
 
             // Tell GameManager to spawn a new star in a few seconds (naturally spawned stars only)
             if (isIdle)
